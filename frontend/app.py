@@ -8,7 +8,7 @@ import os
 import requests
 import streamlit as st
 
-API_URL = os.environ.get("API_URL", "http://api:8080").rstrip("/")
+API_URL = os.environ.get("API_URL", "http://localhost:8080").rstrip("/")
 
 @st.cache_resource
 def get_session():
