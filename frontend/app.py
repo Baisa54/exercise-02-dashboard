@@ -1,7 +1,7 @@
 """
 Exercise 02 — Streamlit Dashboard
 
-Streamlit frontend consuming the Node Registry API.
+Streamlit frontend consuming the Node Registry API
 """
 
 import os
