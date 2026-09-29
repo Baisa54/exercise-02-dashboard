@@ -6,6 +6,7 @@ RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 FROM python:3.14-slim
 WORKDIR /app
 COPY --from=builder /install /usr/local
+RUN python -c "import streamlit as st, os; p = os.path.join(os.path.dirname(st.__file__), 'static', 'index.html'); c = open(p, 'r', encoding='utf-8').read().replace('<title>Streamlit</title>', '<title>Node Registry Dashboard — Nodes</title>'); open(p, 'w', encoding='utf-8').write(c)"
 RUN useradd -m appuser
 USER appuser
 COPY . .

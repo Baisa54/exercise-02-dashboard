@@ -8,7 +8,13 @@ import os
 import requests
 import streamlit as st
 
-API_URL = os.environ.get("API_URL", "http://localhost:8080").rstrip("/")
+API_URL = os.environ.get("API_URL", "http://api:8080").rstrip("/")
+
+@st.cache_resource
+def get_session():
+    return requests.Session()
+
+http = get_session()
 
 st.set_page_config(page_title="Node Registry Dashboard", layout="wide")
 
@@ -17,7 +23,7 @@ st.title("Node Registry Dashboard")
 # 1. Health Indicator
 st.header("System Health")
 try:
-    health_res = requests.get(f"{API_URL}/health", timeout=5)
+    health_res = http.get(f"{API_URL}/health", timeout=3)
     if health_res.status_code == 200:
         health_data = health_res.json()
         col1, col2, col3 = st.columns(3)
@@ -34,7 +40,7 @@ st.divider()
 # Fetch Nodes
 nodes = []
 try:
-    nodes_res = requests.get(f"{API_URL}/api/nodes", timeout=5)
+    nodes_res = http.get(f"{API_URL}/api/nodes", timeout=3)
     if nodes_res.status_code == 200:
         nodes = nodes_res.json()
     else:
@@ -68,10 +74,9 @@ with col_reg:
             else:
                 try:
                     payload = {"name": name, "host": host, "port": int(port)}
-                    res = requests.post(f"{API_URL}/api/nodes", json=payload, timeout=5)
+                    res = http.post(f"{API_URL}/api/nodes", json=payload, timeout=3)
                     if res.status_code == 201:
                         st.success(f"Node '{name}' registered successfully!")
-                        st.rerun()
                     elif res.status_code == 409:
                         st.error(f"Node '{name}' already exists.")
                     else:
@@ -91,10 +96,9 @@ with col_del:
                 st.warning("Please specify a node name to delete.")
             else:
                 try:
-                    res = requests.delete(f"{API_URL}/api/nodes/{delete_name}", timeout=5)
+                    res = http.delete(f"{API_URL}/api/nodes/{delete_name}", timeout=3)
                     if res.status_code == 204:
                         st.success(f"Node '{delete_name}' soft-deleted successfully!")
-                        st.rerun()
                     elif res.status_code == 404:
                         st.error(f"Node '{delete_name}' not found.")
                     else:
