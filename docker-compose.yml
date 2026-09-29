@@ -6,8 +6,9 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 1s
-      timeout: 3s
-      retries: 10
+      timeout: 2s
+      retries: 20
+      start_period: 0s
 
   api:
     build: .
@@ -19,8 +20,8 @@ services:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8080/health')\" || exit 1"]
       interval: 1s
       timeout: 2s
-      retries: 10
-      start_period: 1s
+      retries: 20
+      start_period: 0s
     depends_on:
       db:
         condition: service_healthy
@@ -31,6 +32,13 @@ services:
       - "8501:8501"
     environment:
       - API_URL=http://api:8080
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')\" || exit 1"]
+      interval: 1s
+      timeout: 2s
+      retries: 20
+      start_period: 0s
     depends_on:
-      - api
+      api:
+        condition: service_healthy
 
