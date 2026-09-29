@@ -15,6 +15,12 @@ services:
       - "8080:8080"
     env_file:
       - .env
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8080/health')\" || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
     depends_on:
       db:
         condition: service_healthy
@@ -26,4 +32,6 @@ services:
     environment:
       - API_URL=http://api:8080
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+
